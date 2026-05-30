@@ -1,0 +1,1452 @@
+==== CELL 1 ==== [#### PyTorch provides two high-level features:]
+# This Python 3 environment comes with many helpful analytics libraries installed
+# It is defined by the kaggle/python docker image: https://github.com/kaggle/docker-python
+# For example, here's several helpful packages to load in
+
+import numpy as np # linear algebra
+import pandas as pd # data processing, CSV file I/O (e.g. pd.read_csv)
+import torch
+# Input data files are available in the "../input/" directory.
+# For example, running this (by clicking run or pressing Shift+Enter) will list the files in the input directory
+import seaborn as sns
+
+import matplotlib.pyplot as plt
+plt.style.use("fivethirtyeight")
+%matplotlib inline
+
+import os
+# print(os.listdir("../input"))
+
+# Any results you write to the current directory are saved as output.
+
+==== CELL 5 ==== [#### **Construct a 5x3 matrix uninitialized**]
+x = torch.empty(5, 3)
+print(x)
+
+==== CELL 7 ==== [#### **Convert to numpy**]
+x.numpy()
+
+==== CELL 9 ==== [#### **Size of tensor**]
+x.size()
+
+==== CELL 11 ==== [#### **From Numpy to tensor**]
+a = np.array([[3,4],[4,3]])
+b = torch.from_numpy(a)
+print(b)
+
+==== CELL 14 ==== [#### **Random similar to numpy**]
+x = torch.rand(5, 3)
+print(x)
+
+==== CELL 16 ==== [#### **Construct a matrix filled zeros and of dtype long**]
+x = torch.zeros(5, 3, dtype=torch.long)
+print(x)
+
+==== CELL 17 ==== [#### **Construct a matrix filled zeros and of dtype long**]
+x = torch.ones(3, 3, dtype=torch.long)
+print(x)
+
+==== CELL 19 ==== [#### **Construct a tensor directly from data**]
+x = torch.tensor([2.5, 7])
+print(x)
+
+==== CELL 21 ==== [#### **Create tensor based on existing tensor** - This method has reuse property of input Tensor]
+x = x.new_ones(5, 3, dtype=torch.double)      # new_* methods take in sizes
+print(x)
+print(x.size())
+
+==== CELL 22 ==== [#### **Create tensor based on existing tensor** - This method has reuse property of input Tensor]
+x = torch.randn_like(x, dtype=torch.float)    # override dtype!
+print(x)
+print(x.size())
+
+==== CELL 25 ==== [#### Basic Tensor Operation]
+x = torch.rand(5, 3)
+y = torch.rand(5, 3)
+print(x + y) # This is old method
+print(torch.add(x, y)) # pytorch method
+
+==== CELL 26 ==== [#### Basic Tensor Operation]
+x = torch.rand(5, 3)
+y = torch.rand(5, 3)
+print(x - y) # This is old method
+print(torch.sub(x, y)) # pytorch method
+
+==== CELL 27 ==== [#### Basic Tensor Operation]
+x = torch.rand(5, 3)
+y = torch.rand(5, 3)
+print(x / y) # This is old method
+print(torch.div(x, y)) # pytorch method
+
+==== CELL 28 ==== [#### Basic Tensor Operation]
+x = torch.rand(5, 3)
+y = torch.rand(5, 3)
+print(x * y) # This is old method
+print(torch.mul(x, y)) # pytorch method
+
+==== CELL 30 ==== [#### Basic Tensor Operation]
+# adds x to y
+y.add_(x)
+print(y)
+
+==== CELL 32 ==== [#### Basic Tensor Operation]
+print(x[:, 1])
+
+==== CELL 34 ==== [#### Basic Tensor Operation]
+x = torch.randn(4, 4)
+y = x.view(16)
+z = x.view(-1, 8)  # the size -1 is inferred from other dimensions
+print(x.size(), y.size(), z.size())
+
+==== CELL 37 ==== [### Variable]
+import torch
+from torch.autograd import Variable
+
+==== CELL 39 ==== [### Variable]
+tensor = torch.FloatTensor([[1,2],[3,4]])
+variable = Variable(tensor, requires_grad=True)
+print(tensor)       # [torch.FloatTensor of size 2x2]
+print(variable)     # [torch.FloatTensor of size 2x2]
+
+==== CELL 41 ==== [### Variable]
+t_out = torch.mean(tensor*tensor)       # x^2
+v_out = torch.mean(variable*variable)   # x^2
+print(t_out)
+print(v_out)    # 7.5
+
+==== CELL 43 ==== [### Variable]
+v_out.backward()
+print(variable.grad)
+
+==== CELL 45 ==== [### Variable]
+print(variable)
+
+==== CELL 47 ==== [### Variable]
+print(variable.data)    #
+
+==== CELL 49 ==== [### Variable]
+print(variable.data.numpy())    # numpy format
+
+==== CELL 51 ==== [### Activation Function]
+import torch
+import torch.nn.functional as F
+from torch.autograd import Variable
+import matplotlib.pyplot as plt
+import warnings
+warnings.filterwarnings(action='ignore')
+
+==== CELL 53 ==== [#### Generate Fake Data]
+x = torch.linspace(-5, 5, 200)  # x data (tensor), shape=(200, 1)
+x = Variable(x)
+x_np = x.data.numpy()   # numpy array for plotting
+
+==== CELL 55 ==== [#### Popular Activation Function]
+y_relu = F.relu(x).data.numpy()
+y_sigmoid = F.sigmoid(x).data.numpy()
+y_tanh = F.tanh(x).data.numpy()
+y_softplus = F.softplus(x).data.numpy()
+
+# y_softmax = F.softmax(x)
+# softmax is a special kind of activation function, it is about probability
+# and will make the sum as 1.
+
+==== CELL 58 ==== [#### Activation Function plot from data]
+%matplotlib inline
+
+plt.figure(1, figsize=(20, 20))
+plt.subplot(221)
+plt.scatter(x_np, y_relu, c='red', label='relu')
+plt.ylim((-1, 5))
+plt.legend(loc='best')
+
+plt.subplot(222)
+plt.scatter(x_np, y_sigmoid, c='orange', label='sigmoid')
+plt.ylim((-0.2, 1.2))
+plt.legend(loc='best')
+
+plt.subplot(223)
+plt.scatter(x_np, y_tanh, c='green', label='tanh')
+plt.ylim((-1.2, 1.2))
+plt.legend(loc='best')
+
+plt.subplot(224)
+plt.scatter(x_np, y_softplus, c='blue', label='softplus')
+plt.ylim((-0.2, 6))
+plt.legend(loc='best')
+
+plt.show()
+
+==== CELL 61 ==== [### Linear Regression]
+X = np.random.rand(30, 1)*2.0
+w = np.random.rand(2, 1)
+y = X*w[0] + w[1] + np.random.randn(30, 1) * 0.05
+
+==== CELL 64 ==== [#### Define Weight and Bias]
+W = Variable(torch.rand(1, 1), requires_grad=True)
+b = Variable(torch.rand(1), requires_grad=True)
+
+def linear(x):
+    return torch.matmul(x, W) + b
+
+==== CELL 66 ==== [#### Define Weight and Bias]
+Xt = Variable(torch.from_numpy(X)).float()
+yt = Variable(torch.from_numpy(y)).float()
+
+for epoch in range(2500):
+
+    # Compute predictions
+    y_pred = linear(Xt)
+
+    # Compute cost function
+    loss = torch.mean((y_pred - yt) ** 2)
+
+    # Run back-propagation
+    loss.backward()
+
+    # Update variables
+    W.data = W.data - 0.005*W.grad.data
+    b.data = b.data - 0.005*b.grad.data
+
+    # Reset gradients
+    W.grad.data.zero_()
+    b.grad.data.zero_()
+
+==== CELL 69 ==== [### Relationship Fitting Regression Model]
+import torch
+from torch.autograd import Variable
+import torch.nn.functional as F
+import matplotlib.pyplot as plt
+%matplotlib inline
+
+==== CELL 70 ==== [### Relationship Fitting Regression Model]
+torch.manual_seed(1)    # reproducible
+
+==== CELL 71 ==== [### Relationship Fitting Regression Model]
+x = torch.unsqueeze(torch.linspace(-1, 1, 100), dim=1)  # x data (tensor), shape=(100, 1)
+y = x.pow(2) + 0.2*torch.rand(x.size())                 # noisy y data (tensor), shape=(100, 1)
+
+# torch can only train on Variable, so convert them to Variable
+x, y = Variable(x), Variable(y)
+plt.figure(figsize=(20,8))
+plt.scatter(x.data.numpy(), y.data.numpy(), color = "orange")
+plt.title('Regression Analysis')
+plt.xlabel('Independent varible')
+plt.ylabel('Dependent varible')
+plt.show()
+
+==== CELL 73 ==== [### Model Fitting]
+class Net(torch.nn.Module):
+    def __init__(self, n_feature, n_hidden, n_output):
+        super(Net, self).__init__()
+        self.hidden = torch.nn.Linear(n_feature, n_hidden)   # hidden layer
+        self.predict = torch.nn.Linear(n_hidden, n_output)   # output layer
+
+    def forward(self, x):
+        x = F.relu(self.hidden(x))      # activation function for hidden layer
+        x = self.predict(x)             # linear output
+        return x
+
+==== CELL 74 ==== [### Model Fitting]
+net = Net(n_feature=1, n_hidden=10, n_output=1)     # define the network
+print(net)  # net architecture
+
+==== CELL 76 ==== [### Model Fitting]
+optimizer = torch.optim.SGD(net.parameters(), lr=0.2)
+loss_func = torch.nn.MSELoss()  # this is for regression mean squared loss
+
+==== CELL 77 ==== [### Model Fitting]
+plt.ion()   # something about plotting
+
+==== CELL 78 ==== [### Model Fitting]
+for t in range(100):
+    prediction = net(x)     # input x and predict based on x
+
+    loss = loss_func(prediction, y)     # must be (1. nn output, 2. target)
+
+    optimizer.zero_grad()   # clear gradients for next train
+    loss.backward()         # backpropagation, compute gradients
+    optimizer.step()        # apply gradients
+    if t % 10 == 0:
+        # plot and show learning process
+        plt.figure(figsize=(20,6))
+        plt.cla()
+        plt.scatter(x.data.numpy(), y.data.numpy(), color = "orange")
+        plt.plot(x.data.numpy(), prediction.data.numpy(), 'g-', lw=3)
+        plt.text(0.3, 0, 'Loss=%.4f' % loss.data.numpy(), fontdict={'size': 25, 'color':  'red'})
+        plt.show()
+        plt.pause(0.1)
+
+plt.ioff()
+
+==== CELL 81 ==== [### Distinguish type classification]
+import torch
+from torch.autograd import Variable
+import torch.nn.functional as F
+import matplotlib.pyplot as plt
+%matplotlib inline
+
+torch.manual_seed(1)    # reproducible
+
+==== CELL 83 ==== [### Generate Fake Data]
+n_data = torch.ones(100, 2)
+x0 = torch.normal(2*n_data, 1)      # class0 x data (tensor), shape=(100, 2)
+y0 = torch.zeros(100)               # class0 y data (tensor), shape=(100, 1)
+x1 = torch.normal(-2*n_data, 1)     # class1 x data (tensor), shape=(100, 2)
+y1 = torch.ones(100)                # class1 y data (tensor), shape=(100, 1)
+x = torch.cat((x0, x1), 0).type(torch.FloatTensor)  # shape (200, 2) FloatTensor = 32-bit floating
+y = torch.cat((y0, y1), ).type(torch.LongTensor)    # shape (200,) LongTensor = 64-bit integer
+
+# torch can only train on Variable, so convert them to Variable
+x, y = Variable(x), Variable(y)
+plt.figure(figsize=(10,10))
+plt.scatter(x.data.numpy()[:, 0], x.data.numpy()[:, 1], c=y.data.numpy(), s=100, lw=0, cmap='RdYlGn')
+plt.show()
+
+==== CELL 85 ==== [### Model design]
+class Net(torch.nn.Module):
+    def __init__(self, n_feature, n_hidden, n_output):
+        super(Net, self).__init__()
+        self.hidden = torch.nn.Linear(n_feature, n_hidden)   # hidden layer
+        self.out = torch.nn.Linear(n_hidden, n_output)   # output layer
+
+    def forward(self, x):
+        x = F.relu(self.hidden(x))      # activation function for hidden layer
+        x = self.out(x)
+        return x
+
+==== CELL 87 ==== [### Define Network]
+net = Net(n_feature=2, n_hidden=10, n_output=2)     # define the network
+print(net)  # net architecture
+
+# Loss and Optimizer
+# Softmax is internally computed.
+# Set parameters to be updated.
+optimizer = torch.optim.SGD(net.parameters(), lr=0.02)
+loss_func = torch.nn.CrossEntropyLoss()  # the target label is NOT an one-hotted
+
+==== CELL 89 ==== [### Plot the Model]
+plt.ion()   # something about plotting
+
+==== CELL 90 ==== [### Plot the Model]
+for t in range(100):
+    out = net(x)                 # input x and predict based on x
+    loss = loss_func(out, y)     # must be (1. nn output, 2. target), the target label is NOT one-hotted
+
+    optimizer.zero_grad()   # clear gradients for next train
+    loss.backward()         # backpropagation, compute gradients
+    optimizer.step()        # apply gradients
+
+    if t % 10 == 0 or t in [3, 6]:
+        # plot and show learning process
+        plt.figure(figsize=(20,6))
+        plt.cla()
+        _, prediction = torch.max(F.softmax(out), 1)
+        pred_y = prediction.data.numpy().squeeze()
+        target_y = y.data.numpy()
+        plt.scatter(x.data.numpy()[:, 0], x.data.numpy()[:, 1], c=pred_y, s=100, lw=0, cmap='RdYlGn')
+        accuracy = sum(pred_y == target_y)/200.
+        plt.text(1.5, -4, 'Accuracy=%.2f' % accuracy, fontdict={'size': 20, 'color':  'red'})
+        plt.show()
+        plt.pause(0.1)
+
+plt.ioff()
+
+==== CELL 93 ==== [### Easy way to Buid Neural Network]
+import torch
+import torch.nn.functional as F
+from torch.autograd import Variable
+import matplotlib.pyplot as plt
+%matplotlib inline
+
+torch.manual_seed(1)    # reproducible
+
+==== CELL 95 ==== [### Design Model]
+# replace following class code with an easy sequential network
+class Net(torch.nn.Module):
+    def __init__(self, n_feature, n_hidden, n_output):
+        super(Net, self).__init__()
+        self.hidden = torch.nn.Linear(n_feature, n_hidden)   # hidden layer
+        self.predict = torch.nn.Linear(n_hidden, n_output)   # output layer
+
+    def forward(self, x):
+        x = F.relu(self.hidden(x))      # activation function for hidden layer
+        x = self.predict(x)             # linear output
+        return x
+
+==== CELL 97 ==== [### Define Model]
+net1 = Net(1, 10, 1)
+
+# easy and fast way to build your network
+net2 = torch.nn.Sequential(
+    torch.nn.Linear(1, 10),
+    torch.nn.ReLU(),
+    torch.nn.Linear(10, 1)
+)
+
+==== CELL 98 ==== [### Define Model]
+print(net1)     # net1 architecture
+print(net2)     # net2 architecture
+
+==== CELL 100 ==== [## Save and Reload Model]
+x = torch.unsqueeze(torch.linspace(-1, 1, 100), dim=1)  # x data (tensor), shape=(100, 1)
+y = x.pow(2) + 0.2*torch.rand(x.size())  # noisy y data (tensor), shape=(100, 1)
+x, y = Variable(x, requires_grad=False), Variable(y, requires_grad=False)
+
+==== CELL 102 ==== [### Model Saving Function in Pickle Format]
+def save():
+    # save net1
+    net1 = torch.nn.Sequential(
+        torch.nn.Linear(1, 10),
+        torch.nn.ReLU(),
+        torch.nn.Linear(10, 1)
+    )
+    optimizer = torch.optim.SGD(net1.parameters(), lr=0.5)
+    loss_func = torch.nn.MSELoss()
+
+    for t in range(100):
+        prediction = net1(x)
+        loss = loss_func(prediction, y)
+        optimizer.zero_grad()
+        loss.backward()
+        optimizer.step()
+
+    # plot result
+    plt.figure(1, figsize=(20, 5))
+    plt.subplot(131)
+    plt.title('Net1')
+    plt.scatter(x.data.numpy(), y.data.numpy(), color = "orange")
+    plt.plot(x.data.numpy(), prediction.data.numpy(), 'r-', lw=5)
+
+    # 2 ways to save the net
+    torch.save(net1, 'net.pkl')  # save entire net
+    torch.save(net1.state_dict(), 'net_params.pkl')   # save only the parameters
+
+==== CELL 104 ==== [### Load save model]
+def restore_net():
+    # restore entire net1 to net2
+    net2 = torch.load('net.pkl', weights_only=False)
+    prediction = net2(x)
+
+    # plot resulta
+    plt.figure(1, figsize=(20, 5))
+    plt.subplot(132)
+    plt.title('Net2')
+    plt.scatter(x.data.numpy(), y.data.numpy(), color = "orange")
+    plt.plot(x.data.numpy(), prediction.data.numpy(), 'r-', lw=5)
+
+==== CELL 106 ==== [### Parameter Restore for net1 to net3]
+def restore_params():
+    # restore only the parameters in net1 to net3
+    net3 = torch.nn.Sequential(
+        torch.nn.Linear(1, 10),
+        torch.nn.ReLU(),
+        torch.nn.Linear(10, 1)
+    )
+
+    # copy net1's parameters into net3
+    net3.load_state_dict(torch.load('net_params.pkl'))
+    prediction = net3(x)
+
+    # plot result
+    plt.figure(1, figsize=(20, 5))
+    plt.subplot(133)
+    plt.title('Net3')
+    plt.scatter(x.data.numpy(), y.data.numpy(), color = "orange")
+    plt.plot(x.data.numpy(), prediction.data.numpy(), 'r-', lw=5)
+    plt.show()
+
+==== CELL 108 ==== [### Plot the Models]
+# save net1
+save()
+# restore entire net (may slow)
+restore_net()
+# restore only the net parameters
+restore_params()
+
+==== CELL 110 ==== [## Train on batch]
+import torch
+import torch.utils.data as Data
+
+torch.manual_seed(1)    # reproducible
+
+==== CELL 111 ==== [## Train on batch]
+BATCH_SIZE = 5
+# BATCH_SIZE = 8
+
+==== CELL 113 ==== [#### Dataset Preparation]
+x = torch.linspace(1, 10, 10)       # this is x data (torch tensor)
+y = torch.linspace(10, 1, 10)       # this is y data (torch tensor)
+
+==== CELL 115 ==== [### Load dataset]
+torch_dataset = Data.TensorDataset(x, y)
+loader = Data.DataLoader(
+    dataset=torch_dataset,      # torch TensorDataset format
+    batch_size=BATCH_SIZE,      # mini batch size
+    shuffle=True,               # random shuffle for training
+    num_workers=2,              # subprocesses for loading data
+)
+
+==== CELL 117 ==== [### Model Treaning]
+def show_batch():
+    for epoch in range(3):   # train entire dataset 3 times
+        for step, (batch_x, batch_y) in enumerate(loader):  # for each training step
+            # train your data...
+            print('Epoch: ', epoch, '| Step: ', step, '| batch x: ',
+                  batch_x.numpy(), '| batch y: ', batch_y.numpy())
+
+==== CELL 118 ==== [### Model Treaning]
+if __name__ == '__main__':
+    show_batch()
+
+==== CELL 121 ==== [## Optimizers]
+import torch
+import torch.utils.data as Data
+import torch.nn.functional as F
+from torch.autograd import Variable
+import matplotlib.pyplot as plt
+%matplotlib inline
+
+==== CELL 122 ==== [## Optimizers]
+torch.manual_seed(1)    # reproducible
+
+==== CELL 124 ==== [### Paramater Defined]
+LR = 0.01
+BATCH_SIZE = 32
+EPOCH = 12
+
+==== CELL 126 ==== [### Generate Fake Data]
+# fake dataset
+x = torch.unsqueeze(torch.linspace(-1, 1, 1000), dim=1)
+y = x.pow(2) + 0.1*torch.normal(torch.zeros(*x.size()))
+
+# plot dataset
+plt.figure(figsize=(20,8))
+plt.scatter(x.numpy(), y.numpy(), color = "orange")
+plt.show()
+
+==== CELL 128 ==== [### Put Dataset in torch dataset]
+torch_dataset = Data.TensorDataset(x, y)
+loader = Data.DataLoader(
+    dataset=torch_dataset,
+    batch_size=BATCH_SIZE,
+    shuffle=True, num_workers=2,)
+
+==== CELL 130 ==== [### Default Network]
+class Net(torch.nn.Module):
+    def __init__(self):
+        super(Net, self).__init__()
+        self.hidden = torch.nn.Linear(1, 20)   # hidden layer
+        self.predict = torch.nn.Linear(20, 1)   # output layer
+
+    def forward(self, x):
+        x = F.relu(self.hidden(x))      # activation function for hidden layer
+        x = self.predict(x)             # linear output
+        return x
+
+==== CELL 132 ==== [### Different Net]
+net_SGD         = Net()
+net_Momentum    = Net()
+net_RMSprop     = Net()
+net_Adam        = Net()
+nets = [net_SGD, net_Momentum, net_RMSprop, net_Adam]
+
+==== CELL 134 ==== [### Different optimizers]
+opt_SGD         = torch.optim.SGD(net_SGD.parameters(), lr=LR)
+opt_Momentum    = torch.optim.SGD(net_Momentum.parameters(), lr=LR, momentum=0.8)
+opt_RMSprop     = torch.optim.RMSprop(net_RMSprop.parameters(), lr=LR, alpha=0.9)
+opt_Adam        = torch.optim.Adam(net_Adam.parameters(), lr=LR, betas=(0.9, 0.99))
+optimizers = [opt_SGD, opt_Momentum, opt_RMSprop, opt_Adam]
+
+==== CELL 135 ==== [### Different optimizers]
+loss_func = torch.nn.MSELoss()
+losses_his = [[], [], [], []]   # record loss
+
+==== CELL 137 ==== [### Model Training]
+for epoch in range(EPOCH):
+    print('Epoch: ', epoch)
+    for step, (batch_x, batch_y) in enumerate(loader):          # for each training step
+        b_x = Variable(batch_x)
+        b_y = Variable(batch_y)
+
+        for net, opt, l_his in zip(nets, optimizers, losses_his):
+            output = net(b_x)              # get output for every net
+            loss = loss_func(output, b_y)  # compute loss for every net
+            opt.zero_grad()                # clear gradients for next train
+            loss.backward()                # backpropagation, compute gradients
+            opt.step()                     # apply gradients
+            l_his.append(loss.data[0])     # loss recoder
+plt.figure(figsize = (20,10))
+labels = ['SGD', 'Momentum', 'RMSprop', 'Adam']
+for i, l_his in enumerate(losses_his):
+    plt.plot(l_his, label=labels[i])
+plt.legend(loc='best')
+plt.xlabel('Steps')
+plt.ylabel('Loss')
+plt.ylim((0, 0.2))
+plt.show()
+
+==== CELL 141 ==== [### Convolution]
+import torch
+import torch.nn as nn
+from torch.autograd import Variable
+import torch.utils.data as Data
+import torchvision
+import matplotlib.pyplot as plt
+%matplotlib inline
+
+==== CELL 142 ==== [### Convolution]
+torch.manual_seed(1)    # reproducible
+
+==== CELL 144 ==== [### Hyper Parameters]
+# Hyper Parameters
+EPOCH = 1               # train the training data n times, to save time, we just train 1 epoch
+BATCH_SIZE = 50
+LR = 0.001              # learning rate
+DOWNLOAD_MNIST = False
+
+==== CELL 146 ==== [### Dataset Reading]
+# Mnist digits dataset
+train_data = torchvision.datasets.MNIST(
+    root='../input/mnist/mnist/',
+    train=True,                                     # this is training data
+    transform=torchvision.transforms.ToTensor(),    # Converts a PIL.Image or numpy.ndarray to
+                                                    # torch.FloatTensor of shape (C x H x W) and normalize in the range [0.0, 1.0]
+    download=DOWNLOAD_MNIST,                        # download it if you don't have it
+)
+
+==== CELL 148 ==== [### Show data]
+# plot one example
+print(train_data.train_data.size())                 # (60000, 28, 28)
+print(train_data.train_labels.size())               # (60000)
+plt.imshow(train_data.train_data[0].numpy(), cmap='gray')
+plt.title('%i' % train_data.train_labels[0])
+plt.show()
+
+==== CELL 150 ==== [### Data Convert into Variable]
+# Data Loader for easy mini-batch return in training, the image batch shape will be (50, 1, 28, 28)
+train_loader = Data.DataLoader(dataset=train_data, batch_size=BATCH_SIZE, shuffle=True)
+
+==== CELL 151 ==== [### Data Convert into Variable]
+# convert test data into Variable, pick 2000 samples to speed up testing
+test_data = torchvision.datasets.MNIST(root='../input/mnist/mnist/', train=False)
+test_x = Variable(torch.unsqueeze(test_data.test_data, dim=1)).type(torch.FloatTensor)[:2000]/255.   # shape from (2000, 28, 28) to (2000, 1, 28, 28), value in range(0,1)
+test_y = test_data.test_labels[:2000]
+
+==== CELL 153 ==== [### Model Design]
+class CNN(nn.Module):
+    def __init__(self):
+        super(CNN, self).__init__()
+        self.conv1 = nn.Sequential(         # input shape (1, 28, 28)
+            nn.Conv2d(
+                in_channels=1,              # input height
+                out_channels=16,            # n_filters
+                kernel_size=5,              # filter size
+                stride=1,                   # filter movement/step
+                padding=2,                  # if want same width and length of this image after con2d, padding=(kernel_size-1)/2 if stride=1
+            ),                              # output shape (16, 28, 28)
+            nn.ReLU(),                      # activation
+            nn.MaxPool2d(kernel_size=2),    # choose max value in 2x2 area, output shape (16, 14, 14)
+        )
+        self.conv2 = nn.Sequential(         # input shape (1, 28, 28)
+            nn.Conv2d(16, 32, 5, 1, 2),     # output shape (32, 14, 14)
+            nn.ReLU(),                      # activation
+            nn.MaxPool2d(2),                # output shape (32, 7, 7)
+        )
+        self.out = nn.Linear(32 * 7 * 7, 10)   # fully connected layer, output 10 classes
+
+    def forward(self, x):
+        x = self.conv1(x)
+        x = self.conv2(x)
+        x = x.view(x.size(0), -1)           # flatten the output of conv2 to (batch_size, 32 * 7 * 7)
+        output = self.out(x)
+        return output, x    # return x for visualization
+
+==== CELL 154 ==== [### Model Design]
+cnn = CNN()
+print(cnn)  # net architecture
+
+==== CELL 155 ==== [### Model Design]
+optimizer = torch.optim.Adam(cnn.parameters(), lr=LR)   # optimize all cnn parameters
+loss_func = nn.CrossEntropyLoss()                       # the target label is not one-hotted
+
+==== CELL 157 ==== [### Resulting Graphs]
+# following function (plot_with_labels) is for visualization, can be ignored if not interested
+from matplotlib import cm
+try: from sklearn.manifold import TSNE; HAS_SK = True
+except: HAS_SK = False; print('Please install sklearn for layer visualization')
+def plot_with_labels(lowDWeights, labels):
+    plt.figure(figsize = (20,6))
+    plt.cla()
+    X, Y = lowDWeights[:, 0], lowDWeights[:, 1]
+    for x, y, s in zip(X, Y, labels):
+        c = cm.rainbow(int(255 * s / 9)); plt.text(x, y, s, backgroundcolor=c, fontsize=9)
+    plt.xlim(X.min(), X.max()); plt.ylim(Y.min(), Y.max()); plt.title('Visualize last layer'); plt.show(); plt.pause(0.01)
+
+plt.ion()
+# training and testing
+for epoch in range(EPOCH):
+    for step, (x, y) in enumerate(train_loader):   # gives batch data, normalize x when iterate train_loader
+        b_x = Variable(x)   # batch x
+        b_y = Variable(y)   # batch y
+
+        output = cnn(b_x)[0]               # cnn output
+        loss = loss_func(output, b_y)   # cross entropy loss
+        optimizer.zero_grad()           # clear gradients for this training step
+        loss.backward()                 # backpropagation, compute gradients
+        optimizer.step()                # apply gradients
+
+        if step % 100 == 0:
+            test_output, last_layer = cnn(test_x)
+            pred_y = torch.max(test_output, 1)[1].data.squeeze()
+            accuracy = (pred_y == test_y).sum().item() / float(test_y.size(0))
+            print('Epoch: ', epoch, '| train loss: %.4f' % loss.data[0], '| test accuracy: %.2f' % accuracy)
+            if HAS_SK:
+                # Visualization of trained flatten layer (T-SNE)
+                tsne = TSNE(perplexity=30, n_components=2, init='pca', n_iter=5000)
+                plot_only = 500
+                low_dim_embs = tsne.fit_transform(last_layer.data.numpy()[:plot_only, :])
+                labels = test_y.numpy()[:plot_only]
+                plot_with_labels(low_dim_embs, labels)
+plt.ioff()
+
+==== CELL 158 ==== [### Resulting Graphs]
+# print 10 predictions from test data
+test_output, _ = cnn(test_x[:10])
+pred_y = torch.max(test_output, 1)[1].data.numpy().squeeze()
+print(pred_y, 'prediction number')
+print(test_y[:10].numpy(), 'real number')
+
+==== CELL 161 ==== [### Sequence Modeling]
+import torch
+from torch import nn
+from torch.autograd import Variable
+import torchvision.datasets as dsets
+import torchvision.transforms as transforms
+import matplotlib.pyplot as plt
+%matplotlib inline
+
+torch.manual_seed(1)    # reproducible
+
+==== CELL 163 ==== [### Hyper Parameters]
+EPOCH = 1               # train the training data n times, to save time, we just train 1 epoch
+BATCH_SIZE = 64
+TIME_STEP = 28          # rnn time step / image height
+INPUT_SIZE = 28         # rnn input size / image width
+LR = 0.01               # learning rate
+DOWNLOAD_MNIST = True   # set to True if haven't download the data
+
+==== CELL 164 ==== [### Hyper Parameters]
+# Mnist digital dataset
+train_data = dsets.MNIST(
+    root='../input/mnist/mnist/',
+    train=True,                         # this is training data
+    transform=transforms.ToTensor(),    # Converts a PIL.Image or numpy.ndarray to
+                                        # torch.FloatTensor of shape (C x H x W) and normalize in the range [0.0, 1.0]
+    download=DOWNLOAD_MNIST,            # download it if you don't have it
+)
+
+==== CELL 165 ==== [### Hyper Parameters]
+# plot one example
+print(train_data.train_data.size())     # (60000, 28, 28)
+print(train_data.train_labels.size())   # (60000)
+plt.imshow(train_data.train_data[0].numpy(), cmap='gray')
+plt.title('%i' % train_data.train_labels[0])
+plt.show()
+
+==== CELL 167 ==== [### Data Loader for easy mini-batch return in training]
+train_loader = torch.utils.data.DataLoader(dataset=train_data, batch_size=BATCH_SIZE, shuffle=True)
+
+==== CELL 169 ==== [### Convert test data into Variable, pick 2000 samples to speed up testing]
+test_data = dsets.MNIST(root='../input/mnist/mnist/', train=False, transform=transforms.ToTensor())
+test_x = Variable(test_data.test_data, volatile=True).type(torch.FloatTensor)[:2000]/255.   # shape (2000, 28, 28) value in range(0,1)
+test_y = test_data.test_labels.numpy().squeeze()[:2000]    # covert to numpy array
+
+==== CELL 171 ==== [### Model Design]
+class RNN(nn.Module):
+    def __init__(self):
+        super(RNN, self).__init__()
+
+        self.rnn = nn.LSTM(         # if use nn.RNN(), it hardly learns
+            input_size=INPUT_SIZE,
+            hidden_size=64,         # rnn hidden unit
+            num_layers=1,           # number of rnn layer
+            batch_first=True,       # input & output will has batch size as 1s dimension. e.g. (batch, time_step, input_size)
+        )
+
+        self.out = nn.Linear(64, 10)
+
+    def forward(self, x):
+        # x shape (batch, time_step, input_size)
+        # r_out shape (batch, time_step, output_size)
+        # h_n shape (n_layers, batch, hidden_size)
+        # h_c shape (n_layers, batch, hidden_size)
+        r_out, (h_n, h_c) = self.rnn(x, None)   # None represents zero initial hidden state
+
+        # choose r_out at the last time step
+        out = self.out(r_out[:, -1, :])
+        return out
+
+==== CELL 172 ==== [### Model Design]
+rnn = RNN()
+print(rnn)
+
+==== CELL 173 ==== [### Model Design]
+optimizer = torch.optim.Adam(rnn.parameters(), lr=LR)   # optimize all cnn parameters
+loss_func = nn.CrossEntropyLoss()
+
+==== CELL 175 ==== [### Training and Testing]
+# training and testing
+for epoch in range(EPOCH):
+    for step, (x, y) in enumerate(train_loader):        # gives batch data
+        b_x = Variable(x.view(-1, 28, 28))              # reshape x to (batch, time_step, input_size)
+        b_y = Variable(y)                               # batch y
+
+        output = rnn(b_x)                               # rnn output
+        loss = loss_func(output, b_y)                   # cross entropy loss
+        optimizer.zero_grad()                           # clear gradients for this training step
+        loss.backward()                                 # backpropagation, compute gradients
+        optimizer.step()                                # apply gradients
+
+        if step % 50 == 0:
+            test_output = rnn(test_x)                   # (samples, time_step, input_size)
+            pred_y = torch.max(test_output, 1)[1].data.numpy().squeeze()
+            accuracy = sum(pred_y == test_y) / float(test_y.size)
+            print('Epoch: ', epoch, '| train loss: %.4f' % loss.data[0], '| test accuracy: %.2f' % accuracy)
+
+==== CELL 177 ==== [### Predicted and Actual Value match]
+# print 20 predictions from test data
+test_output = rnn(test_x[:20].view(-1, 28, 28))
+pred_y = torch.max(test_output, 1)[1].data.numpy().squeeze()
+print(pred_y, 'prediction number')
+print(test_y[:20], 'real number')
+
+==== CELL 178 ==== [### Predicted and Actual Value match]
+plt.figure(1, figsize=(20, 8))
+plt.plot(pred_y, c='green', label='Predicted')
+plt.plot(test_y[:20], c='orange', label='Actual')
+plt.xlabel("Index")
+plt.ylabel("Predicted/Actual Value")
+plt.title("RNN Classification Result Analysis")
+plt.legend(loc='best')
+
+==== CELL 180 ==== [## RNN-Regression]
+import torch
+from torch import nn
+from torch.autograd import Variable
+import numpy as np
+import matplotlib.pyplot as plt
+%matplotlib inline
+
+torch.manual_seed(1)    # reproducible
+
+==== CELL 182 ==== [###  Hyper Parameters]
+# Hyper Parameters
+TIME_STEP = 10      # rnn time step
+INPUT_SIZE = 1      # rnn input size
+LR = 0.02           # learning rate
+
+==== CELL 184 ==== [### Show data]
+steps = np.linspace(0, np.pi*2, 100, dtype=np.float32)
+x_np = np.sin(steps)    # float32 for converting torch FloatTensor
+y_np = np.cos(steps)
+plt.figure(figsize=(20,5))
+plt.plot(steps, y_np, 'r-', label='target (cos)')
+plt.plot(steps, x_np, 'b-', label='input (sin)')
+plt.legend(loc='best')
+plt.show()
+
+==== CELL 186 ==== [### Model Design]
+class RNN(nn.Module):
+    def __init__(self):
+        super(RNN, self).__init__()
+
+        self.rnn = nn.RNN(
+            input_size=INPUT_SIZE,
+            hidden_size=32,     # rnn hidden unit
+            num_layers=1,       # number of rnn layer
+            batch_first=True,   # input & output will has batch size as 1s dimension. e.g. (batch, time_step, input_size)
+        )
+        self.out = nn.Linear(32, 1)
+
+    def forward(self, x, h_state):
+        # x (batch, time_step, input_size)
+        # h_state (n_layers, batch, hidden_size)
+        # r_out (batch, time_step, hidden_size)
+        r_out, h_state = self.rnn(x, h_state)
+
+        outs = []    # save all predictions
+        for time_step in range(r_out.size(1)):    # calculate output for each time step
+            outs.append(self.out(r_out[:, time_step, :]))
+        return torch.stack(outs, dim=1), h_state
+
+        # instead, for simplicity, you can replace above codes by follows
+        # r_out = r_out.view(-1, 32)
+        # outs = self.out(r_out)
+        # return outs, h_state
+
+==== CELL 187 ==== [### Model Design]
+rnn = RNN()
+print(rnn)
+
+==== CELL 188 ==== [### Model Design]
+optimizer = torch.optim.Adam(rnn.parameters(), lr=LR)   # optimize all cnn parameters
+loss_func = nn.MSELoss()
+
+==== CELL 190 ==== [### Model Training and Result Plotting]
+h_state = None      # for initial hidden state
+
+==== CELL 191 ==== [### Model Training and Result Plotting]
+plt.ion()           # continuously plot
+
+==== CELL 192 ==== [### Model Training and Result Plotting]
+for step in range(50):
+    start, end = step * np.pi, (step+1)*np.pi   # time range
+    # use sin predicts cos
+    steps = np.linspace(start, end, TIME_STEP, dtype=np.float32)
+    x_np = np.sin(steps)    # float32 for converting torch FloatTensor
+    y_np = np.cos(steps)
+
+    x = torch.from_numpy(x_np[np.newaxis, :, np.newaxis])    # shape (batch, time_step, input_size)
+    y = torch.from_numpy(y_np[np.newaxis, :, np.newaxis])
+
+    prediction, h_state = rnn(x, h_state)   # rnn output
+    # !! next step is important !!
+    h_state = h_state.data        # repack the hidden state, break the connection from last iteration
+
+    loss = loss_func(prediction, y)         # calculate loss
+    optimizer.zero_grad()                   # clear gradients for this training step
+    loss.backward()                         # backpropagation, compute gradients
+    optimizer.step()                        # apply gradients
+
+    # plotting
+    plt.figure(1, figsize=(20, 5))
+    plt.plot(steps, y_np.flatten(), 'r-', label="Actual")
+    plt.plot(steps, prediction.data.numpy().flatten(), 'b-', label="Predicted")
+    plt.xlabel("Steps")
+    plt.ylabel("Actual/Predicted")
+    plt.title("Result")
+    plt.draw(); plt.pause(0.05)
+
+==== CELL 193 ==== [### Model Training and Result Plotting]
+plt.ioff()
+plt.show()
+
+==== CELL 195 ==== [## AutoEncoder]
+import torch
+import torch.nn as nn
+from torch.autograd import Variable
+import torch.utils.data as Data
+import torchvision
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
+from matplotlib import cm
+import numpy as np
+%matplotlib inline
+
+torch.manual_seed(1)    # reproducible
+
+==== CELL 197 ==== [### Hyper Parameters]
+EPOCH = 10
+BATCH_SIZE = 64
+LR = 0.005         # learning rate
+DOWNLOAD_MNIST = False
+N_TEST_IMG = 5
+
+==== CELL 198 ==== [### Hyper Parameters]
+# Mnist digits dataset
+train_data = torchvision.datasets.MNIST(
+    root='../input/mnist/mnist/',
+    train=True,                                     # this is training data
+    transform=torchvision.transforms.ToTensor(),    # Converts a PIL.Image or numpy.ndarray to
+                                                    # torch.FloatTensor of shape (C x H x W) and normalize in the range [0.0, 1.0]
+    download=DOWNLOAD_MNIST,                        # download it if you don't have it
+)
+
+==== CELL 199 ==== [### Hyper Parameters]
+# plot one example
+print(train_data.train_data.size())     # (60000, 28, 28)
+print(train_data.train_labels.size())   # (60000)
+plt.imshow(train_data.train_data[2].numpy(), cmap='gray')
+plt.title('%i' % train_data.train_labels[2])
+plt.show()
+
+==== CELL 201 ==== [### Data Loader for easy mini-batch return in training, the image batch shape will be (50, 1, 28, 28)]
+train_loader = Data.DataLoader(dataset=train_data, batch_size=BATCH_SIZE, shuffle=True)
+
+==== CELL 203 ==== [### Model Design]
+class AutoEncoder(nn.Module):
+    def __init__(self):
+        super(AutoEncoder, self).__init__()
+
+        self.encoder = nn.Sequential(
+            nn.Linear(28*28, 128),
+            nn.Tanh(),
+            nn.Linear(128, 64),
+            nn.Tanh(),
+            nn.Linear(64, 12),
+            nn.Tanh(),
+            nn.Linear(12, 3),   # compress to 3 features which can be visualized in plt
+        )
+        self.decoder = nn.Sequential(
+            nn.Linear(3, 12),
+            nn.Tanh(),
+            nn.Linear(12, 64),
+            nn.Tanh(),
+            nn.Linear(64, 128),
+            nn.Tanh(),
+            nn.Linear(128, 28*28),
+            nn.Sigmoid(),       # compress to a range (0, 1)
+        )
+
+    def forward(self, x):
+        encoded = self.encoder(x)
+        decoded = self.decoder(encoded)
+        return encoded, decoded
+
+==== CELL 205 ==== [### Model Training]
+autoencoder = AutoEncoder()
+print(autoencoder)
+
+optimizer = torch.optim.Adam(autoencoder.parameters(), lr=LR)
+loss_func = nn.MSELoss()
+
+# original data (first row) for viewing
+view_data = Variable(train_data.train_data[:N_TEST_IMG].view(-1, 28*28).type(torch.FloatTensor)/255.)
+
+for epoch in range(EPOCH):
+    for step, (x, y) in enumerate(train_loader):
+        b_x = Variable(x.view(-1, 28*28))   # batch x, shape (batch, 28*28)
+        b_y = Variable(x.view(-1, 28*28))   # batch y, shape (batch, 28*28)
+        b_label = Variable(y)               # batch label
+
+        encoded, decoded = autoencoder(b_x)
+
+        loss = loss_func(decoded, b_y)      # mean square error
+        optimizer.zero_grad()               # clear gradients for this training step
+        loss.backward()                     # backpropagation, compute gradients
+        optimizer.step()                    # apply gradients
+
+        if step % 500 == 0 and epoch in [0, 5, EPOCH-1]:
+            print('Epoch: ', epoch, '| train loss: %.4f' % loss.data[0])
+
+            # plotting decoded image (second row)
+            _, decoded_data = autoencoder(view_data)
+
+            # initialize figure
+            f, a = plt.subplots(2, N_TEST_IMG, figsize=(5, 2))
+
+            for i in range(N_TEST_IMG):
+                a[0][i].imshow(np.reshape(view_data.data.numpy()[i], (28, 28)), cmap='gray'); a[0][i].set_xticks(()); a[0][i].set_yticks(())
+
+            for i in range(N_TEST_IMG):
+                a[1][i].clear()
+                a[1][i].imshow(np.reshape(decoded_data.data.numpy()[i], (28, 28)), cmap='gray')
+                a[1][i].set_xticks(()); a[1][i].set_yticks(())
+            plt.show(); plt.pause(0.05)
+
+==== CELL 207 ==== [### Visualize in 3D plot]
+# visualize in 3D plot
+view_data = Variable(train_data.train_data[:200].view(-1, 28*28).type(torch.FloatTensor)/255.)
+encoded_data, _ = autoencoder(view_data)
+fig = plt.figure(2,figsize=(15,6)); ax = Axes3D(fig)
+X, Y, Z = encoded_data.data[:, 0].numpy(), encoded_data.data[:, 1].numpy(), encoded_data.data[:, 2].numpy()
+values = train_data.train_labels[:200].numpy()
+for x, y, z, s in zip(X, Y, Z, values):
+    c = cm.rainbow(int(255*s/9)); ax.text(x, y, z, s, backgroundcolor=c)
+ax.set_xlim(X.min(), X.max()); ax.set_ylim(Y.min(), Y.max()); ax.set_zlim(Z.min(), Z.max())
+plt.show()
+
+==== CELL 209 ==== [## DQN Reinforcement Learning]
+import torch
+import torch.nn as nn
+from torch.autograd import Variable
+import torch.nn.functional as F
+import numpy as np
+import gym
+
+==== CELL 211 ==== [### Hyper Parameters]
+# Hyper Parameters
+BATCH_SIZE = 32
+LR = 0.01                   # learning rate
+EPSILON = 0.9               # greedy policy
+GAMMA = 0.9                 # reward discount
+TARGET_REPLACE_ITER = 100   # target update frequency
+MEMORY_CAPACITY = 2000
+env = gym.make('CartPole-v0')
+env = env.unwrapped
+N_ACTIONS = env.action_space.n
+N_STATES = env.observation_space.shape[0]
+
+==== CELL 213 ==== [### Neural Network Design]
+class Net(nn.Module):
+    def __init__(self, ):
+        super(Net, self).__init__()
+        self.fc1 = nn.Linear(N_STATES, 10)
+        self.fc1.weight.data.normal_(0, 0.1)   # initialization
+        self.out = nn.Linear(10, N_ACTIONS)
+        self.out.weight.data.normal_(0, 0.1)   # initialization
+
+    def forward(self, x):
+        x = self.fc1(x)
+        x = F.relu(x)
+        actions_value = self.out(x)
+        return actions_value
+
+==== CELL 215 ==== [### DQN Model Design]
+class DQN(object):
+    def __init__(self):
+        self.eval_net, self.target_net = Net(), Net()
+
+        self.learn_step_counter = 0                                     # for target updating
+        self.memory_counter = 0                                         # for storing memory
+        self.memory = np.zeros((MEMORY_CAPACITY, N_STATES * 2 + 2))     # initialize memory
+        self.optimizer = torch.optim.Adam(self.eval_net.parameters(), lr=LR)
+        self.loss_func = nn.MSELoss()
+
+    def choose_action(self, x):
+        x = Variable(torch.unsqueeze(torch.FloatTensor(x), 0))
+        # input only one sample
+        if np.random.uniform() < EPSILON:   # greedy
+            actions_value = self.eval_net.forward(x)
+            action = torch.max(actions_value, 1)[1].data.numpy()[0, 0]     # return the argmax
+        else:   # random
+            action = np.random.randint(0, N_ACTIONS)
+        return action
+
+    def store_transition(self, s, a, r, s_):
+        transition = np.hstack((s, [a, r], s_))
+        # replace the old memory with new memory
+        index = self.memory_counter % MEMORY_CAPACITY
+        self.memory[index, :] = transition
+        self.memory_counter += 1
+
+    def learn(self):
+        # target parameter update
+        if self.learn_step_counter % TARGET_REPLACE_ITER == 0:
+            self.target_net.load_state_dict(self.eval_net.state_dict())
+        self.learn_step_counter += 1
+
+        # sample batch transitions
+        sample_index = np.random.choice(MEMORY_CAPACITY, BATCH_SIZE)
+        b_memory = self.memory[sample_index, :]
+        b_s = Variable(torch.FloatTensor(b_memory[:, :N_STATES]))
+        b_a = Variable(torch.LongTensor(b_memory[:, N_STATES:N_STATES+1].astype(int)))
+        b_r = Variable(torch.FloatTensor(b_memory[:, N_STATES+1:N_STATES+2]))
+        b_s_ = Variable(torch.FloatTensor(b_memory[:, -N_STATES:]))
+
+        # q_eval w.r.t the action in experience
+        q_eval = self.eval_net(b_s).gather(1, b_a)  # shape (batch, 1)
+        q_next = self.target_net(b_s_).detach()     # detach from graph, don't backpropagate
+        q_target = b_r + GAMMA * q_next.max(1)[0]   # shape (batch, 1)
+        loss = self.loss_func(q_eval, q_target)
+
+        self.optimizer.zero_grad()
+        loss.backward()
+        self.optimizer.step()
+
+==== CELL 216 ==== [### DQN Model Design]
+dqn = DQN()
+
+==== CELL 217 ==== [### DQN Model Design]
+'''
+print('\nCollecting experience...')
+for i_episode in range(400):
+    s = env.reset()
+    ep_r = 0
+    while True:
+        env.render()
+        a = dqn.choose_action(s)
+
+        # take action
+        s_, r, done, info = env.step(a)
+
+        # modify the reward
+        x, x_dot, theta, theta_dot = s_
+        r1 = (env.x_threshold - abs(x)) / env.x_threshold - 0.8
+        r2 = (env.theta_threshold_radians - abs(theta)) / env.theta_threshold_radians - 0.5
+        r = r1 + r2
+
+        dqn.store_transition(s, a, r, s_)
+
+        ep_r += r
+        if dqn.memory_counter > MEMORY_CAPACITY:
+            dqn.learn()
+            if done:
+                print('Ep: ', i_episode,
+                      '| Ep_r: ', round(ep_r, 2))
+
+        if done:
+            break
+        s = s_
+'''
+
+==== CELL 220 ==== [## Generative Adversarial Network]
+import torch
+import torch.nn as nn
+from torch.autograd import Variable
+import numpy as np
+import matplotlib.pyplot as plt
+%matplotlib inline
+
+torch.manual_seed(1)    # reproducible
+np.random.seed(1)
+
+==== CELL 222 ==== [### Hyper Parameters]
+# Hyper Parameters
+BATCH_SIZE = 64
+LR_G = 0.0001           # learning rate for generator
+LR_D = 0.0001           # learning rate for discriminator
+N_IDEAS = 5             # think of this as number of ideas for generating an art work (Generator)
+ART_COMPONENTS = 15     # it could be total point G can draw in the canvas
+PAINT_POINTS = np.vstack([np.linspace(-1, 1, ART_COMPONENTS) for _ in range(BATCH_SIZE)])
+
+==== CELL 223 ==== [### Hyper Parameters]
+# show our beautiful painting range
+plt.figure(figsize=(20,6))
+plt.plot(PAINT_POINTS[0], 2 * np.power(PAINT_POINTS[0], 2) + 1, c='#74BCFF', lw=3, label='upper bound')
+plt.plot(PAINT_POINTS[0], 1 * np.power(PAINT_POINTS[0], 2) + 0, c='#FF9359', lw=3, label='lower bound')
+plt.legend(loc='upper right')
+plt.show()
+
+==== CELL 224 ==== [### Hyper Parameters]
+def artist_works():     # painting from the famous artist (real target)
+    a = np.random.uniform(1, 2, size=BATCH_SIZE)[:, np.newaxis]
+    paintings = a * np.power(PAINT_POINTS, 2) + (a-1)
+    paintings = torch.from_numpy(paintings).float()
+    return Variable(paintings)
+
+G = nn.Sequential(                      # Generator
+    nn.Linear(N_IDEAS, 128),            # random ideas (could from normal distribution)
+    nn.ReLU(),
+    nn.Linear(128, ART_COMPONENTS),     # making a painting from these random ideas
+)
+
+D = nn.Sequential(                      # Discriminator
+    nn.Linear(ART_COMPONENTS, 128),     # receive art work either from the famous artist or a newbie like G
+    nn.ReLU(),
+    nn.Linear(128, 1),
+    nn.Sigmoid(),                       # tell the probability that the art work is made by artist
+)
+
+==== CELL 225 ==== [### Hyper Parameters]
+opt_D = torch.optim.Adam(D.parameters(), lr=LR_D)
+opt_G = torch.optim.Adam(G.parameters(), lr=LR_G)
+
+==== CELL 226 ==== [### Hyper Parameters]
+for step in range(800):
+    artist_paintings = artist_works()           # real painting from artist
+    G_ideas = torch.randn(BATCH_SIZE, N_IDEAS)  # random ideas
+    G_paintings = G(G_ideas)                    # fake painting from G (random ideas)
+
+    prob_artist0 = D(artist_paintings)          # D try to increase this prob
+    prob_artist1 = D(G_paintings)               # D try to reduce this prob
+
+    D_loss = - torch.mean(torch.log(prob_artist0) + torch.log(1. - prob_artist1))
+    G_loss = torch.mean(torch.log(1. - prob_artist1))
+
+    opt_D.zero_grad()
+    D_loss.backward(retain_graph=True)      # reusing computational graph
+    opt_D.step()
+
+    opt_G.zero_grad()
+    G_loss.backward()
+    opt_G.step()
+
+    if step % 50 == 0:  # plotting
+        plt.figure(figsize=(20,5))
+        plt.cla()
+        plt.plot(PAINT_POINTS[0], G_paintings.data.numpy()[0], c='#4AD631', lw=3, label='Generated painting',)
+        plt.plot(PAINT_POINTS[0], 2 * np.power(PAINT_POINTS[0], 2) + 1, c='#74BCFF', lw=3, label='upper bound')
+        plt.plot(PAINT_POINTS[0], 1 * np.power(PAINT_POINTS[0], 2) + 0, c='#FF9359', lw=3, label='lower bound')
+        plt.text(-.5, 2.3, 'D accuracy=%.2f (0.5 for D to converge)' % prob_artist0.data.numpy().mean(), fontdict={'size': 13})
+        plt.text(-.5, 2, 'D score= %.2f (-1.38 for G to converge)' % -D_loss.data.numpy(), fontdict={'size': 13})
+        plt.ylim((0, 3));plt.legend(loc='upper right', fontsize=10);plt.draw();plt.pause(0.01)
+
+plt.ioff()
+plt.show()
+
+==== CELL 228 ==== [### Conditional GAN]
+import torch
+import torchvision
+import torch.nn as nn
+import torch.nn.functional as F
+from torch.utils.data import DataLoader
+from torchvision import datasets
+from torchvision import transforms
+from torchvision.utils import save_image
+import numpy as np
+import datetime
+import scipy.misc
+
+==== CELL 229 ==== [### Conditional GAN]
+MODEL_NAME = 'ConditionalGAN'
+DEVICE = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+
+==== CELL 230 ==== [### Conditional GAN]
+def to_cuda(x):
+    return x.to(DEVICE)
+
+==== CELL 231 ==== [### Conditional GAN]
+def to_onehot(x, num_classes=10):
+    assert isinstance(x, int) or isinstance(x, (torch.LongTensor, torch.cuda.LongTensor))
+    if isinstance(x, int):
+        c = torch.zeros(1, num_classes).long()
+        c[0][x] = 1
+    else:
+        x = x.cpu()
+        c = torch.LongTensor(x.size(0), num_classes)
+        c.zero_()
+        c.scatter_(1, x, 1) # dim, index, src value
+    return c
+
+==== CELL 232 ==== [### Conditional GAN]
+def get_sample_image(G, n_noise=100):
+    """
+        save sample 100 images
+    """
+    for num in range(10):
+        c = to_cuda(to_onehot(num))
+        for i in range(10):
+            z = to_cuda(torch.randn(1, n_noise))
+            y_hat = G(z,c)
+            line_img = torch.cat((line_img, y_hat.view(28, 28)), dim=1) if i > 0 else y_hat.view(28, 28)
+        all_img = torch.cat((all_img, line_img), dim=0) if num > 0 else line_img
+    img = all_img.cpu().data.numpy()
+    return img
+
+==== CELL 233 ==== [### Conditional GAN]
+class Discriminator(nn.Module):
+    """
+        Simple Discriminator w/ MLP
+    """
+    def __init__(self, input_size=784, label_size=10, num_classes=1):
+        super(Discriminator, self).__init__()
+        self.layer1 = nn.Sequential(
+            nn.Linear(input_size+label_size, 200),
+            nn.ReLU(),
+            nn.Dropout(),
+        )
+        self.layer2 = nn.Sequential(
+            nn.Linear(200, 200),
+            nn.ReLU(),
+            nn.Dropout(),
+        )
+        self.layer3 = nn.Sequential(
+            nn.Linear(200, num_classes),
+            nn.Sigmoid(),
+        )
+
+    def forward(self, x, y):
+        x, y = x.view(x.size(0), -1), y.view(y.size(0), -1).float()
+        v = torch.cat((x, y), 1) # v: [input, label] concatenated vector
+        y_ = self.layer1(v)
+        y_ = self.layer2(y_)
+        y_ = self.layer3(y_)
+        return y_
+
+==== CELL 234 ==== [### Conditional GAN]
+class Generator(nn.Module):
+    """
+        Simple Generator w/ MLP
+    """
+    def __init__(self, input_size=100, label_size=10, num_classes=784):
+        super(Generator, self).__init__()
+        self.layer = nn.Sequential(
+            nn.Linear(input_size+label_size, 200),
+            nn.LeakyReLU(0.2),
+            nn.Linear(200, 200),
+            nn.LeakyReLU(0.2),
+            nn.Linear(200, num_classes),
+            nn.Tanh()
+        )
+
+    def forward(self, x, y):
+        x, y = x.view(x.size(0), -1), y.view(y.size(0), -1).float()
+        v = torch.cat((x, y), 1) # v: [input, label] concatenated vector
+        y_ = self.layer(v)
+        y_ = y_.view(x.size(0), 1, 28, 28)
+        return y_
+
+==== CELL 235 ==== [### Conditional GAN]
+D = to_cuda(Discriminator())
+G = to_cuda(Generator())
+
+==== CELL 236 ==== [### Conditional GAN]
+transform = transforms.Compose([transforms.ToTensor(),
+                                transforms.Normalize(mean=(0.5, 0.5, 0.5),
+                                std=(0.5, 0.5, 0.5))]
+)
+
+==== CELL 237 ==== [### Conditional GAN]
+mnist = datasets.MNIST(root='../input/mnist/mnist/', train=True, transform=transform, download=True)
+
+==== CELL 238 ==== [### Conditional GAN]
+batch_size = 64
+condition_size = 10
+
+==== CELL 239 ==== [### Conditional GAN]
+data_loader = DataLoader(dataset=mnist, batch_size=batch_size, shuffle=True, drop_last=True)
+
+==== CELL 240 ==== [### Conditional GAN]
+criterion = nn.BCELoss()
+D_opt = torch.optim.Adam(D.parameters())
+G_opt = torch.optim.Adam(G.parameters())
+
+==== CELL 241 ==== [### Conditional GAN]
+max_epoch = 100 # need more than 200 epochs for training generator
+step = 0
+n_critic = 5 # for training more k steps about Discriminator
+n_noise = 100
+
+==== CELL 242 ==== [### Conditional GAN]
+D_labels = to_cuda(torch.ones(batch_size)) # Discriminator Label to real
+D_fakes = to_cuda(torch.zeros(batch_size)) # Discriminator Label to fake
+
+==== CELL 243 ==== [### Conditional GAN]
+for epoch in range(max_epoch):
+    for idx, (images, labels) in enumerate(data_loader):
+        step += 1
+        # Training Discriminator
+        x = to_cuda(images)
+        y = labels.view(batch_size, 1)
+        y = to_cuda(to_onehot(y))
+        x_outputs = D(x, y)
+        D_x_loss = criterion(x_outputs, D_labels)
+
+        z = to_cuda(torch.randn(batch_size, n_noise))
+        z_outputs = D(G(z, y), y)
+        D_z_loss = criterion(z_outputs, D_fakes)
+        D_loss = D_x_loss + D_z_loss
+
+        D.zero_grad()
+        D_loss.backward()
+        D_opt.step()
+
+        if step % n_critic == 0:
+            # Training Generator
+            z = to_cuda(torch.randn(batch_size, n_noise))
+            z_outputs = D(G(z, y), y)
+            G_loss = criterion(z_outputs, D_labels)
+
+            G.zero_grad()
+            G_loss.backward()
+            G_opt.step()
+
+        if step % 1000 == 0:
+            print('Epoch: {}/{}, Step: {}, D Loss: {}, G Loss: {}'.format(epoch, max_epoch, step, D_loss.data[0], G_loss.data[0]))
+
+        if epoch % 5 == 0:
+            G.eval()
+            img = get_sample_image(G)
+            scipy.misc.imsave('{}_epoch_{}_type1.jpg'.format(MODEL_NAME, epoch), img)
+            G.train()
+
+==== CELL 244 ==== [### Conditional GAN]
+def save_checkpoint(state, file_name='checkpoint.pth.tar'):
+    torch.save(state, file_name)
+
+# Saving params.
+# torch.save(D.state_dict(), 'D_c.pkl')
+# torch.save(G.state_dict(), 'G_c.pkl')
+save_checkpoint({'epoch': epoch + 1, 'state_dict':D.state_dict(), 'optimizer' : D_opt.state_dict()}, 'D_dc.pth.tar')
+save_checkpoint({'epoch': epoch + 1, 'state_dict':G.state_dict(), 'optimizer' : G_opt.state_dict()}, 'G_dc.pth.tar')
